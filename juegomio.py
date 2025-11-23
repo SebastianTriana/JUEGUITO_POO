@@ -1,3 +1,7 @@
+#Autor: Sebastian Triana
+
+#Caso de uso: Aprender a usar hilos por medio de un jueguito
+
 import pygame
 import threading
 import random
@@ -149,3 +153,4 @@ pygame.display.flip()
 time.sleep(3)
 
 pygame.quit()
+
