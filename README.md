@@ -17,14 +17,14 @@ caen desde la parte superior de la pantalla.
 
 ------------------------------------------------------------------------
 
-## 📂 Archivos necesarios
+##  Archivos necesarios
 
 -   `main.py` → archivo principal del juego\
 -   `README.md` → este archivo de documentación
 
 ------------------------------------------------------------------------
 
-## ▶️ Cómo ejecutar el juego
+##  Cómo ejecutar el juego
 
 1.  Asegúrate de tener **Python 3.8+** instalado.
 
