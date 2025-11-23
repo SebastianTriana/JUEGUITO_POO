@@ -15,8 +15,7 @@ ANCHO = 1280
 ALTO = 720
 
 #posicion inicial de la navesita
-jugador_x = ANCHO / 2
-jugador_y = ALTO - 100
+# (estos valores ahora los maneja la clase Jugador)
 
 #la pantalla
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
@@ -26,10 +25,45 @@ reloj = pygame.time.Clock()
 FPS = 60
 
 juego_activo = True
+perdiste = False  # <-- NUEVO
 
 meteoros = [] 
 
 
+# ------------------------------
+# Clase jugador (nueva)
+# ------------------------------
+class Jugador:
+    def __init__(self):
+        #posición inicial de la navesita
+        self.x = ANCHO / 2
+        self.y = ALTO - 100
+        self.ancho = 50
+        self.alto = 50
+        self.velocidad = 5
+
+    def mover(self, teclas):
+        if teclas[pygame.K_LEFT]:
+            self.x -= self.velocidad
+
+        if teclas[pygame.K_RIGHT]:
+            self.x += self.velocidad
+
+        # Evitar que se salga del lado izquierdo
+        if self.x < 0:
+            self.x = 0
+
+        # Evitar que se salga del lado derecho
+        if self.x > ANCHO - self.ancho:
+            self.x = ANCHO - self.ancho
+
+    def dibujar(self, pantalla):
+        #dibujo de la nave
+        pygame.draw.rect(
+            pantalla,
+            COLOR_JUGADOR,  # color de la navesita
+            (self.x, self.y, self.ancho, self.alto)  # tamaño de la navesita
+        )
 
 
 #Clase meteorito
@@ -42,7 +76,6 @@ class Meteoro(threading.Thread):
         self.vivo = True
 
     def run(self):
-        print("h")
         while self.vivo and juego_activo:
             self.y += self.velocidad
 
@@ -64,6 +97,17 @@ class Meteoro(threading.Thread):
 hilo_generador = threading.Thread(target=Meteoro.generador_meteoros)
 hilo_generador.start()
 
+# Crear jugador
+jugador = Jugador()
+
+
+#manejo de las colisiones
+def hay_colision(jugador, meteoro):
+    nave_rect = pygame.Rect(jugador.x, jugador.y, jugador.ancho, jugador.alto)
+    meteoro_rect = pygame.Rect(meteoro.x - 20, meteoro.y - 20, 40, 40)
+    return nave_rect.colliderect(meteoro_rect)
+
+
 #loop principal
 while juego_activo:
     reloj.tick(FPS)
@@ -74,26 +118,34 @@ while juego_activo:
 
     pantalla.fill(COLOR_FONDO)
 
-    #dibujo de la nave
-    pygame.draw.rect(   
-        pantalla,
-        COLOR_JUGADOR,        # color de la navesita
-        (jugador_x, jugador_y, 50, 50)  # tamaño de la navesita
-    )
+    if not perdiste:
 
-    for m in meteoros:
-        if m.vivo:
-            pygame.draw.circle(pantalla, COLOR_METEORO, (int(m.x), int(m.y)), 20)
+        teclas = pygame.key.get_pressed()
+        jugador.mover(teclas)
+        jugador.dibujar(pantalla)
 
-    teclas = pygame.key.get_pressed()
+        for m in meteoros:
+            if m.vivo:
+                pygame.draw.circle(pantalla, COLOR_METEORO, (int(m.x), int(m.y)), 20)
 
-    if teclas[pygame.K_LEFT]:
-        jugador_x -= 5
-
-    if teclas[pygame.K_RIGHT]:
-        jugador_x += 5
-
+                # DETECCION DE COLISION
+                if hay_colision(jugador, m):
+                    perdiste = True
+                    juego_activo = False  # detener generador
+                    break
 
     pygame.display.flip() #Se muestra todo lo dibujado
 
-pygame.quit
+
+#Jajajaja, perdistes
+pantalla.fill((0, 0, 0))
+
+fuente = pygame.font.Font(None, 100)
+texto = fuente.render("Jajajajaj, que malo eres!", True, (255, 0, 0))
+pantalla.blit(texto, (ANCHO//2 - texto.get_width()//2, ALTO//2 - texto.get_height()//2))
+
+pygame.display.flip()
+
+time.sleep(3)
+
+pygame.quit()
