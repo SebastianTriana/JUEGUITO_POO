@@ -34,9 +34,7 @@ perdiste = False  # <-- NUEVO
 meteoros = [] 
 
 
-# ------------------------------
-# Clase jugador (nueva)
-# ------------------------------
+#clase navesita
 class Jugador:
     def __init__(self):
         #posición inicial de la navesita
@@ -153,4 +151,5 @@ pygame.display.flip()
 time.sleep(3)
 
 pygame.quit()
+
 
